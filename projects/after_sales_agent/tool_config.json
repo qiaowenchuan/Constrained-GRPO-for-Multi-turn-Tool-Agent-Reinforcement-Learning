@@ -1,0 +1,28 @@
+{
+  "tools": [
+    {
+      "class_name": "projects.after_sales_agent.stateful_tools.QueryOrderTool",
+      "config": {
+        "type": "native"
+      }
+    },
+    {
+      "class_name": "projects.after_sales_agent.stateful_tools.RefundOrderTool",
+      "config": {
+        "type": "native"
+      }
+    },
+    {
+      "class_name": "projects.after_sales_agent.stateful_tools.ExchangeOrderTool",
+      "config": {
+        "type": "native"
+      }
+    },
+    {
+      "class_name": "projects.after_sales_agent.stateful_tools.ModifyOrderTool",
+      "config": {
+        "type": "native"
+      }
+    }
+  ]
+}

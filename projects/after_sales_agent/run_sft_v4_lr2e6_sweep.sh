@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RELEASE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+: "${VERL_ROOT:?Set VERL_ROOT to the local verl checkout}"
+ROOT="$(cd "$VERL_ROOT" && pwd)"
+
+: "${MODEL:?Set MODEL to the local Qwen3-0.6B model path}"
+
+PROJECT_DIR="$SCRIPT_DIR"
+TRAIN="$PROJECT_DIR/data_sft_v3/train.parquet"
+OUT="$ROOT/checkpoints/after_sales_agent/tool_use_sft_v4_lr2e6_sweep"
+
+export PYTHONPATH="$RELEASE_ROOT:${PYTHONPATH:-}"
+
+cd "$ROOT"
+source .venv/bin/activate
+
+export LD_LIBRARY_PATH=$ROOT/.venv/lib/python3.12/site-packages/nvidia/cu13/lib:${LD_LIBRARY_PATH:-}
+export PYTHONUNBUFFERED=1
+
+ray stop --force >/dev/null 2>&1 || true
+
+python -m verl.trainer.sft_trainer_ray \
+    data.train_files="$TRAIN" \
+    data.val_files=null \
+    data.train_batch_size=8 \
+    data.micro_batch_size_per_gpu=1 \
+    data.max_token_len_per_gpu=2048 \
+    data.use_dynamic_bsz=true \
+    data.max_length=1024 \
+    data.truncation=error \
+    data.messages_key=messages \
+    data.tools_key=tools \
+    data.enable_thinking_key=enable_thinking \
+    data.enable_thinking_default=false \
+    data.ignore_input_ids_mismatch=true \
+    data.num_workers=0 \
+    data.custom_cls.path="$PROJECT_DIR/decision_sft_dataset.py" \
+    data.custom_cls.name=DecisionSFTDataset \
+    model.path="$MODEL" \
+    model.trust_remote_code=true \
+    model.use_remove_padding=true \
+    optim.lr=2e-6 \
+    optim.weight_decay=0.0 \
+    optim.lr_scheduler_type=constant \
+    engine.use_torch_compile=false \
+    trainer.project_name=after_sales_agent \
+    trainer.experiment_name=tool_use_sft_v4_lr2e6_sweep \
+    trainer.default_local_dir="$OUT" \
+    trainer.total_epochs=4 \
+    trainer.total_training_steps=12 \
+    trainer.logger='["console"]' \
+    trainer.save_freq=4 \
+    trainer.test_freq=-1 \
+    trainer.resume_mode=disable \
+    trainer.nnodes=1 \
+    trainer.n_gpus_per_node=1 \
+    checkpoint.save_contents='["hf_model"]'

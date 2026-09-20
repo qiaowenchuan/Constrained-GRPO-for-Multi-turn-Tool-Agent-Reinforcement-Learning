@@ -1,0 +1,53 @@
+# =========================
+# SFT data
+# =========================
+make_sft_dataset_v3.py
+data_sft_v3/train.parquet
+data_sft_v3/val.parquet
+decision_sft_dataset.py
+run_sft_v4_lr2e6_sweep.sh
+
+# =========================
+# Main strict environment
+# =========================
+stateful_tools.py
+tool_config.json
+reward_stateful_v2.py
+
+# =========================
+# Formal constraint ablation
+# =========================
+stateful_tools_ablation.py
+tool_config_ablation.json
+make_constraint_ablation_formal.py
+data_v2_constraint_ablation_formal/train.parquet
+data_v2_constraint_ablation_formal/validation.parquet
+
+# =========================
+# Formal evaluation
+# =========================
+run_v4_ablation_baseline_val.sh
+
+# =========================
+# Vanilla GRPO
+# =========================
+run_v4_ablation_vanilla_5step.sh
+run_v4_ablation_vanilla_seed456_5step.sh
+run_v4_ablation_vanilla_seed789_5step.sh
+
+# =========================
+# Constrained GRPO
+# =========================
+run_v4_ablation_constrained_5step.sh
+run_v4_ablation_constrained_seed456_5step.sh
+run_v4_ablation_constrained_seed789_5step.sh
+
+# =========================
+# Result aggregation
+# =========================
+summarize_ablation_3seeds.py
+
+# =========================
+# Post-cleanup verification
+# =========================
+run_v4_ablation_constrained_cleanup_smoke_1step.sh
